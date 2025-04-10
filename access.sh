@@ -199,6 +199,19 @@ eval "$TEST_COMMAND"
 
 if [ $? -eq 0 ]; then
     print_success "Connection test passed. Your SSH key is working correctly"
+    
+    # Log successful setup to shared folder
+    print_status "Logging successful setup"
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    HOST_INFO=$(uname -a)
+    LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'mkdir -p /nfs/home/shared/setup_logs && echo \"[$TIMESTAMP] Setup successful from $HOST_INFO\" >> /nfs/home/shared/migration/$NETID.log'"
+    eval "$LOG_COMMAND" > /dev/null 2>&1
+    
+    if [ $? -eq 0 ]; then
+        print_success "Setup logged successfully"
+    else
+        print_warning "Could not write to log file, but setup was successful"
+    fi
 else
     print_error "Connection test failed. Please check the following:"
     print_status "1. Ensure you entered the correct NetID"
@@ -213,6 +226,19 @@ else
     
     if [ $? -eq 0 ]; then
         print_success "Connection successful using full hostname. Your SSH key works, but there might be an issue with your SSH config."
+        
+        # Log successful setup to shared folder
+        print_status "Logging successful setup"
+        TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+        HOST_INFO=$(uname -a)
+        LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'mkdir -p /nfs/home/shared/setup_logs && echo \"[$TIMESTAMP] Setup successful from $HOST_INFO\" >> /nfs/home/shared/setup_logs/$NETID.log'"
+        eval "$LOG_COMMAND" > /dev/null 2>&1
+        
+        if [ $? -eq 0 ]; then
+            print_success "Setup logged successfully"
+        else
+            print_warning "Could not write to log file, but setup was successful"
+        fi
     else
         print_error "Connection failed with full hostname as well. Please contact MLDS support for assistance."
     fi
