@@ -134,11 +134,11 @@ print_status "Copying SSH key to NFS storage"
 print_status "You may be prompted for your Northwestern NetID password"
 
 # Here we need to make sure the authorized_keys file exists with proper permissions
-SSH_COPY_ID_CMD="ssh-copy-id -i $KEY_PATH.pub $NETID@mlds-deepdish1.ads.northwestern.edu"
+SSH_COPY_ID_CMD="ssh-copy-id -i $KEY_PATH.pub $NETID@mlds-deepdish4.ads.northwestern.edu"
 eval $SSH_COPY_ID_CMD
 
 # Here we need to make sure the authorized_keys file exists with proper permissions
-SSH_COPY_ID_CMD="ssh-copy-id -i $KEY_PATH.pub $NETID@mlds-deepdish1.ads.northwestern.edu"
+SSH_COPY_ID_CMD="ssh-copy-id -i $KEY_PATH.pub $NETID@mlds-deepdish4.ads.northwestern.edu"
 eval $SSH_COPY_ID_CMD
 if [ $? -ne 0 ]; then
     print_error "Failed to copy SSH key to NFS. Please check your NetID and password."
