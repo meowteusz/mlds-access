@@ -245,5 +245,6 @@ fi
 
 # Step 7: Ask for consent to collect telemetry
 print_status "Setup complete!"
-print_status "Thank you for setting up your MLDS SSH access."
-print_status "To connect to the server, simply type: ssh $SERVER_NICKNAME"
+print_status "CAVEAT! The wolf server is not yet transitioned to local login!!"
+print_status "Once the server *IS* transitioned to local login, simply type: ssh $SERVER_NICKNAME"
+print_status "But if you try this now, it will still be slow or potentially fail."
