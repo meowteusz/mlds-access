@@ -204,7 +204,7 @@ if [ $? -eq 0 ]; then
     print_status "Logging successful setup"
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     HOST_INFO=$(uname -a)
-    LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'echo \"[$TIMESTAMP] Setup successful from $HOST_INFO\" >> /nfs/home/shared/migration/${NETID}_$(date +%Y%m%d%H%M%S).log'"
+    LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'echo [$TIMESTAMP] Setup successful from $WIFI_NAME >> /nfs/home/shared/migration/${NETID}_$(date +%Y%m%d%H%M%S).log'"
     eval "$LOG_COMMAND" > /dev/null 2>&1
     
     if [ $? -eq 0 ]; then
@@ -230,8 +230,7 @@ else
         # Log successful setup to shared folder
         print_status "Logging successful setup"
         TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
-        HOST_INFO=$(uname -a)
-        LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'echo \"[$TIMESTAMP] Setup successful from $HOST_INFO\" >> /nfs/home/shared/migration/${NETID}_$(date +%Y%m%d%H%M%S).log'"
+        LOG_COMMAND="ssh -i $KEY_PATH $NETID@irc.mlds.northwestern.edu 'echo [$TIMESTAMP] Setup successful from $WIFI_NAME >> /nfs/home/shared/migration/${NETID}_$(date +%Y%m%d%H%M%S).log'"
         eval "$LOG_COMMAND" > /dev/null 2>&1
         
         if [ $? -eq 0 ]; then
