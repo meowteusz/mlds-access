@@ -131,54 +131,56 @@ set /p SERVER_NICKNAME="Enter a nickname for the server (default: wolf): "
 
 :: Check if the entry already exists
 set "UPDATE_CONFIG=y"
+set "ENTRY_EXISTS=n"
+
 if exist "%USERPROFILE%\.ssh\config" (
-    findstr /C:"Host %SERVER_NICKNAME%" "%USERPROFILE%\.ssh\config" >nul 2>&1
+    :: Use findstr with /B to match beginning of line and ensure exact match
+    findstr /B /C:"Host %SERVER_NICKNAME%" "%USERPROFILE%\.ssh\config" >nul 2>&1
     if %ERRORLEVEL% equ 0 (
+        set "ENTRY_EXISTS=y"
         echo [WARNING] An entry for '%SERVER_NICKNAME%' already exists in your SSH config
         set /p UPDATE_CONFIG="Do you want to update it? (y/n): "
         if /i "!UPDATE_CONFIG!"=="y" (
-            :: Create a temporary file without the existing entry
+            echo [INFO] Creating new config without the existing entry...
+            
+            :: Simple approach - create a new config file without the host and its entries
             type nul > "%TEMP%\ssh_config.tmp"
-            set "SKIP_LINES=false"
+            set "SKIP_MODE=0"
+            
             for /f "usebackq tokens=* delims=" %%a in ("%USERPROFILE%\.ssh\config") do (
                 set "line=%%a"
-                echo Checking line: "!line!"
-                if "!line!"=="Host %SERVER_NICKNAME%" (
-                    echo Found host line to skip
-                    set "SKIP_LINES=true"
-                ) else if "!SKIP_LINES!"=="true" (
-                    if "!line!"=="" (
-                        echo Found empty line, stopping skip
-                        set "SKIP_LINES=false"
-                        echo !line! >> "%TEMP%\ssh_config.tmp"
-                    ) else if "!line:~0,1!"==" " (
-                        echo Skipping indented line: "!line!"
-                        REM Skip indented lines that are part of the host
-                    ) else if "!line:~0,4!"=="Host" (
-                        echo Found next host, stopping skip: "!line!"
-                        set "SKIP_LINES=false"
-                        echo !line! >> "%TEMP%\ssh_config.tmp"
-                    ) else (
-                        echo Line is not indented or a host: "!line!"
-                        set "SKIP_LINES=false"
-                        echo !line! >> "%TEMP%\ssh_config.tmp"
-                    )
+                
+                :: Check if this is the Host line we want to skip
+                echo !line! | findstr /B /C:"Host %SERVER_NICKNAME%" >nul 2>&1
+                if %ERRORLEVEL% equ 0 (
+                    set "SKIP_MODE=1"
                 ) else (
-                    echo Copying line: "!line!"
-                    echo !line! >> "%TEMP%\ssh_config.tmp"
+                    :: Check if we're in skip mode and this is a new Host line (ending our skip)
+                    if !SKIP_MODE! equ 1 (
+                        echo !line! | findstr /B /C:"Host " >nul 2>&1
+                        if %ERRORLEVEL% equ 0 (
+                            set "SKIP_MODE=0"
+                        )
+                    )
+                    
+                    :: If not in skip mode, or it's a line starting with Host (new host entry)
+                    if !SKIP_MODE! equ 0 (
+                        echo !line!>> "%TEMP%\ssh_config.tmp"
+                    )
                 )
             )
-            copy "%TEMP%\ssh_config.tmp" "%USERPROFILE%\.ssh\config" >nul
-            del "%TEMP%\ssh_config.tmp"
+            
+            copy "%TEMP%\ssh_config.tmp" "%USERPROFILE%\.ssh\config" >nul 2>&1
+            del "%TEMP%\ssh_config.tmp" >nul 2>&1
             echo [SUCCESS] Removed existing entry for %SERVER_NICKNAME%
         ) else (
-            echo [INFO] Skipping SSH config update
+            echo [INFO] Keeping existing SSH config entry
         )
     ) else (
-        echo [INFO] No existing entry found for %SERVER_NICKNAME%
+        echo [INFO] No existing entry found for %SERVER_NICKNAME% in SSH config
     )
 ) else (
-    echo [INFO] Creating new SSH config file
+    echo [INFO] No SSH config file exists yet. Will create one.
 )
 
 :: Add new entry if needed
