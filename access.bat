@@ -284,10 +284,11 @@ if %ERRORLEVEL% equ 0 (
 )
 
 call :print_status "Setup complete!"
-call :print_status "CAVEAT! The wolf server is not yet transitioned to local login!!"
+call :print_status "CAVEAT -- The wolf server is not yet transitioned to local login!!"
 call :print_status "Once the server *IS* transitioned to local login, simply type: ssh %SERVER_NICKNAME%"
 call :print_status "But if you try this now, it will still be slow or potentially fail."
 
 :: End of script
-endlocal
-exit /b 0
+echo.
+echo Press any key to exit...
+pause >nul
