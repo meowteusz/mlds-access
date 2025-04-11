@@ -94,14 +94,16 @@ echo [INFO] You may be prompted for your Northwestern NetID password
 
 :: Windows doesn't have a direct equivalent to ssh-copy-id, so we'll create our own
 :: First, ensure the remote .ssh directory exists and has proper permissions
-ssh %NETID%@mlds-deepdish4.ads.northwestern.edu "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
+echo [INFO] Connecting to remote server (this may take some time)...
+ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to create remote .ssh directory. Please check your NetID and password.
     exit /b 1
 )
 
 :: Now append the public key to the authorized_keys file
-type "%KEY_PATH%.pub" | ssh %NETID%@mlds-deepdish4.ads.northwestern.edu "cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+echo [INFO] Copying SSH key (this may take some time)...
+type "%KEY_PATH%.pub" | ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu "cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to copy SSH key to NFS. Please check your NetID and password.
     exit /b 1
@@ -187,7 +189,8 @@ echo [INFO] Testing connection to the server
 echo [INFO] Attempting to connect to test server and create a file. This will be deleted immediately.
 
 :: Run the test command
-ssh -i "%KEY_PATH%" %NETID%@irc.mlds.northwestern.edu "touch ~/golden-ticket && ls -la ~/golden-ticket && rm ~/golden-ticket"
+echo [INFO] Testing connection (this may take some time)...
+ssh -o ConnectTimeout=0 -i "%KEY_PATH%" %NETID%@irc.mlds.northwestern.edu "touch ~/golden-ticket && ls -la ~/golden-ticket && rm ~/golden-ticket"
 
 if %ERRORLEVEL% equ 0 (
     echo [SUCCESS] Connection test passed. Your SSH key is working correctly
