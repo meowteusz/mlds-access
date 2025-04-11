@@ -103,14 +103,11 @@ if %ERRORLEVEL% neq 0 (
 
 :: Now append the public key to the authorized_keys file
 echo [INFO] Copying SSH key (this may take some time)...
-:: Create a temporary file with Unix line endings
-powershell -Command "$content = Get-Content '%KEY_PATH%.pub'; $content = $content -replace '\r', ''; $content | Set-Content -NoNewline '%TEMP%\ssh_key_temp.pub'; Get-Content -Raw '%TEMP%\ssh_key_temp.pub' | ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu 'cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'"
+type "%KEY_PATH%.pub" | ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu "cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to copy SSH key to NFS. Please check your NetID and password.
     exit /b 1
 )
-:: Clean up temporary file
-if exist "%TEMP%\ssh_key_temp.pub" del "%TEMP%\ssh_key_temp.pub"
 echo [SUCCESS] SSH key copied to NFS
 
 :: Step 5: Update SSH config
