@@ -103,7 +103,8 @@ if %ERRORLEVEL% neq 0 (
 
 :: Now append the public key to the authorized_keys file
 echo [INFO] Copying SSH key (this may take some time)...
-type "%KEY_PATH%.pub" | ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu "cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+:: Use PowerShell to read the file and convert line endings before sending
+powershell -Command "$key = Get-Content -Raw '%KEY_PATH%.pub'; $key = $key.Replace([char]13, '').Replace([char]10, ''); $key | ssh -o ConnectTimeout=0 %NETID%@mlds-deepdish4.ads.northwestern.edu 'cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to copy SSH key to NFS. Please check your NetID and password.
     exit /b 1
