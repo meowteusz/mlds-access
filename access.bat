@@ -140,20 +140,31 @@ if exist "%USERPROFILE%\.ssh\config" (
             :: Create a temporary file without the existing entry
             type nul > "%TEMP%\ssh_config.tmp"
             set "SKIP_LINES=false"
-            for /f "usebackq delims=" %%a in ("%USERPROFILE%\.ssh\config") do (
+            for /f "usebackq tokens=* delims=" %%a in ("%USERPROFILE%\.ssh\config") do (
                 set "line=%%a"
+                echo Checking line: "!line!"
                 if "!line!"=="Host %SERVER_NICKNAME%" (
+                    echo Found host line to skip
                     set "SKIP_LINES=true"
                 ) else if "!SKIP_LINES!"=="true" (
                     if "!line!"=="" (
+                        echo Found empty line, stopping skip
                         set "SKIP_LINES=false"
+                        echo !line! >> "%TEMP%\ssh_config.tmp"
                     ) else if "!line:~0,1!"==" " (
+                        echo Skipping indented line: "!line!"
                         REM Skip indented lines that are part of the host
                     ) else if "!line:~0,4!"=="Host" (
+                        echo Found next host, stopping skip: "!line!"
+                        set "SKIP_LINES=false"
+                        echo !line! >> "%TEMP%\ssh_config.tmp"
+                    ) else (
+                        echo Line is not indented or a host: "!line!"
                         set "SKIP_LINES=false"
                         echo !line! >> "%TEMP%\ssh_config.tmp"
                     )
                 ) else (
+                    echo Copying line: "!line!"
                     echo !line! >> "%TEMP%\ssh_config.tmp"
                 )
             )
@@ -163,7 +174,11 @@ if exist "%USERPROFILE%\.ssh\config" (
         ) else (
             echo [INFO] Skipping SSH config update
         )
+    ) else (
+        echo [INFO] No existing entry found for %SERVER_NICKNAME%
     )
+) else (
+    echo [INFO] Creating new SSH config file
 )
 
 :: Add new entry if needed
