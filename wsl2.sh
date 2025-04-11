@@ -54,30 +54,7 @@ fi
 
 print_success "Required tools found"
 
-# Step 1.5: Check WiFi connection
-print_status "Checking network connection..."
-
-# Check for eduroam WiFi connection
-print_status "Checking WiFi connection (this may take a few seconds)..."
-WIFI_NAME=$(system_profiler SPAirPortDataType | awk '/Current Network/ {getline;$1=$1;print $0 | "tr -d \":\"";exit}')
-
-if [ "$WIFI_NAME" == "eduroam" ]; then
-    print_success "Connected to eduroam WiFi"
-else
-    print_warning "You don't see to be on eduroam WiFi. Network name: $WIFI_NAME"
-    print_status "This script requires either eduroam WiFi or Northwestern VPN connection to work properly"
-    print_status "If you are on Northwestern VPN or eduroam, you may continue"
-    
-    read -p "Are you connected to Northwestern VPN or eduroam? (y/n): " ON_VPN
-    if [[ ! $ON_VPN =~ ^[Yy]$ ]]; then
-        print_error "Not connected to Northwestern VPN or eduroam WiFi"
-        print_status "Please connect to Northwestern VPN or eduroam WiFi before running this script"
-        exit 1
-    fi
-    print_success "Continuing with Northwestern VPN connection"
-fi
-
-# Step 2: Try to determine NetID from SSH config
+# Step 2: NetID Query
 NETID=""
 if [ -f ~/.ssh/config ]; then
     read -p "Please enter your Northwestern NetID: " NETID
